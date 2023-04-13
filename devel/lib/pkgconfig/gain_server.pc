@@ -1,0 +1,8 @@
+prefix=/home/pi/CSJ_ws/devel
+
+Name: gain_server
+Description: Description of gain_server
+Version: 0.0.0
+Cflags: -I/home/pi/CSJ_ws/devel/include
+Libs: -L${prefix}/lib 
+Requires: 

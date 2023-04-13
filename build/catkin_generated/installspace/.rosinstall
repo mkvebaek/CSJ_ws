@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/pi/CSJ_ws/install/setup.sh

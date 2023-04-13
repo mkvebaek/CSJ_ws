@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+import rospy
+import math 
+import time
+
+from sensor_msgs.msg import Joy
+from std_msgs.msg import Float64MultiArray
+
+vessel_name = "CSAD"
+
+
+if __name__ == '__main__':
+    rospy.init_node("joy_controller")
+    rospy.loginfo(f"INITIALIZING {vessel_name}JOYSTICK CONTROLLER NODE")
+    r = rospy.Rate(100)
+
+    u_pub = rospy.Publisher(
+            f"/{vessel_name}/u", Float64MultiArray, queue_size=1)
+    u_msg = Float64MultiArray()
+
+   
+    angle = 0.0
+    t0 = time.time()  # start clockf
+
+
+    while not rospy.is_shutdown():
+        u_msg.data = [0, 0, 0, 0, 0, 0, angle,
+                        angle, angle, angle, angle, angle]
+        if time.time() - t0 < 10:
+            u = 0
+        else:
+            u = 0.2
+        #u_msg.data = [u,u,u, math.sin(angle), math.sin(angle), math.sin(angle), math.sin(angle), math.sin(angle), math.sin(angle), math.sin(angle), math.sin(angle), math.sin(angle)]
+        u_msg.data = [u,u,u,u,u,u,u,u,u,u,u,u]
+
+        u_pub.publish(u_msg)
+
+        angle += 0.003
+        r.sleep()
+
+    rospy.spin()
+    rospy.shutdown()

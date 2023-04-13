@@ -1,0 +1,8 @@
+prefix=/home/pi/CSJ_ws/devel
+
+Name: csad_node
+Description: Description of csad_node
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

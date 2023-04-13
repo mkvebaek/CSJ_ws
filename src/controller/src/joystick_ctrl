@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+import rospy
+import numpy as np
+import math
+
+from sensor_msgs.msg import Joy
+from std_msgs.msg import Float64MultiArray
+
+
+from common_tools.lib import ps4, nodeEnd
+from common_tools.math_tools import *
+
+
+# Example functions for manuevering with the DS4 controller
+def saturate(u):
+    """
+    Saturate ensures that the input to the actuator remains bounded to the interval [-1, 1]
+    """
+    if u > 1:
+        u = 1
+    elif u < -1:
+        u = -1
+    return u
+
+
+def joystick_ctrl(self, lStickX, lStickY, rStickX, rStickY, R2, L2):
+    """
+        Maps the input from a Dualshock 4 controller to a generalized
+        force vector i BODY-frame.
+        """
+
+    X = (lStickY + rStickY)  # Surge
+    Y = (lStickX + rStickX)  # Sway
+    N = (R2 - L2)            # Yaw
+
+    self.tau = np.array([[X], [Y], [N]])
+
+
+def sixaxis2thruster(lStickX, lStickY, rStickX, rStickY, R2, L2):
+    """
+    sixaxis2thruster() directly maps the sixaxis playstation controller inputs
+    to the vessel actuators.
+    """
+    ### Acutator commands ###
+    u1 = -0.5*(L2 - R2)
+    u2 = saturate(math.sqrt(lStickX ** 2 + lStickY ** 2))
+    u3 = saturate(math.sqrt(rStickX ** 2 + rStickY ** 2))
+
+    ### VSD angles as described in the handbook ###
+    alpha1 = math.atan2(lStickX, lStickY)
+    alpha2 = math.atan2(rStickX, rStickY)
+
+    u = np.array([u1, u2, u3, alpha1, alpha2])
+    return u
+
+
+if __name__ == '__main__':
+    rospy.init_node("joy_controller")
+    rospy.loginfo("INITIALIZING OBSERVER NODE")
+    r = rospy.Rate(100)
+    u_data = rospy.Publisher("/CSV/u", Float64MultiArray, queue_size=1)
+    msg = Float64MultiArray()
+
+    while not rospy.is_shutdown():
+        # Handle calls to methods or functions as below
+        msg.data = sixaxis2thruster(ps4.lStickX, ps4.lStickY, ps4.rStickX,
+                                    ps4.rStickY, ps4.R2, ps4.L2)  # Computes the acutator command
+        u_data.publish(msg) 									    # Publishes computed value to CSV/u
+        r.sleep()
+
+    rospy.spin()
+    rospy.shutdown()

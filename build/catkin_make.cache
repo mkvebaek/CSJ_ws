@@ -1,0 +1,2 @@
+common_tools:controller:csad_actuator_driver:csad_node:dynamixel_sdk:gain_server:messages:thrust_allocation
+-DCATKIN_DEVEL_PREFIX=/home/pi/CSJ_ws/devel -DCMAKE_INSTALL_PREFIX=/home/pi/CSJ_ws/install -G Unix Makefiles
